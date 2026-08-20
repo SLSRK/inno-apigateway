@@ -1,0 +1,153 @@
+services:
+
+  apigateway:
+    build: ./apigateway
+    container_name: apigateway
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - userservice
+      - authservice
+      - orderservice
+
+  userservice:
+    build: ../inno-userservice/userservice
+    container_name: userservice
+    ports:
+      - "8081:8080"
+    networks:
+      - app-network
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_USER}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATA_REDIS_HOST: ${REDIS_HOST_USER}
+      SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - user-db
+      - user-redis
+
+  authservice:
+    build: ../inno-authservice/authservice
+    container_name: authservice
+    ports:
+      - "8082:8080"
+    networks:
+      - app-network
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_AUTH}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_EXPIRATION_MINS: ${ACCESS_EXPIRATION_MINS}
+      REFRESH_EXPIRATION_MINS: ${REFRESH_EXPIRATION_MINS}
+      USERSERVICE_URL: ${USERSERVICE_URL}
+    depends_on:
+      - auth-db
+
+  orderservice:
+    build: ../inno-orderservice/orderservice
+    container_name: orderservice
+    ports:
+      - "8083:8080"
+    networks:
+      - app-network
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL_ORDER}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATA_REDIS_HOST: ${REDIS_HOST_ORDER}
+      SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      USERSERVICE_URL: ${USERSERVICE_URL}
+    depends_on:
+      - order-db
+      - order-redis
+
+  user-db:
+    image: postgres:16
+    container_name: userservice_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_USER}
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+
+  auth-db:
+    image: postgres:16
+    container_name: authservice_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_AUTH}
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+
+  order-db:
+    image: postgres:16
+    container_name: orderservice_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_ORDER}
+    ports:
+      - "5434:5432"
+    networks:
+      - app-network
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+
+  user-redis:
+    image: redis:7
+    container_name: userservice_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  order-redis:
+    image: redis:7
+    container_name: orderservice_redis
+    restart: always
+    ports:
+      - "6380:6379"
+    networks:
+      - app-network
+
+volumes:
+  user_db_data:
+  auth_db_data:
+  order_db_data:
+
+networks:
+  app-network:
+    external: true

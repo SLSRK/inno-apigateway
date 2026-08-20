@@ -1,0 +1,75 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: userservice-docs
+              uri: http://userservice:8080
+              order: 0
+              predicates:
+                - Path=/userservice/v3/api-docs
+              filters:
+                - RewritePath=/userservice/v3/api-docs, /v3/api-docs
+
+            - id: authservice-docs
+              uri: http://authservice:8080
+              order: 1
+              predicates:
+                - Path=/authservice/v3/api-docs
+              filters:
+                - RewritePath=/authservice/v3/api-docs, /v3/api-docs
+
+            - id: orderservice-docs
+              uri: http://orderservice:8080
+              order: 2
+              predicates:
+                - Path=/orderservice/v3/api-docs
+              filters:
+                - RewritePath=/orderservice/v3/api-docs, /v3/api-docs
+
+            - id: userservice
+              uri: http://userservice:8080
+              order: 10
+              predicates:
+                - Path=/userservice/**
+              filters:
+                - RewritePath=/userservice/(?<segment>.*), /${segment}
+
+            - id: authservice
+              uri: http://authservice:8080
+              order: 11
+              predicates:
+                - Path=/authservice/**
+              filters:
+                - RewritePath=/authservice/(?<segment>.*), /${segment}
+
+            - id: orderservice
+              uri: http://orderservice:8080
+              order: 12
+              predicates:
+                - Path=/orderservice/**
+              filters:
+                - RewritePath=/orderservice/(?<segment>.*), /${segment}
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: userservice
+        url: /userservice/v3/api-docs
+      - name: authservice
+        url: /authservice/v3/api-docs
+      - name: orderservice
+        url: /orderservice/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
