@@ -26,7 +26,8 @@ public class JwtFilter implements GlobalFilter, Ordered {
                 path.contains("/auth/register") ||
                 path.contains("/auth/refresh") ||
                 path.contains("/v3/api-docs") ||
-                path.contains("/swagger-ui")
+                path.contains("/swagger-ui") ||
+                path.contains("/actuator")
         ) {
             return chain.filter(exchange);
         }
