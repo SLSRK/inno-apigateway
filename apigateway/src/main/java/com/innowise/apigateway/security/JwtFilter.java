@@ -1,12 +1,12 @@
 package com.innowise.apigateway.security;
 
+import com.innowise.apigateway.client.AuthClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class JwtFilter implements GlobalFilter, Ordered {
 
-    private final ReactiveJwtDecoder jwtDecoder;
+    private final AuthClient authClient;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -25,9 +25,10 @@ public class JwtFilter implements GlobalFilter, Ordered {
         if (path.contains("/auth/login") ||
                 path.contains("/auth/register") ||
                 path.contains("/auth/refresh") ||
+                path.contains("/auth/validate") ||
                 path.contains("/v3/api-docs") ||
                 path.contains("/swagger-ui") ||
-                path.contains("/actuator")
+                path.startsWith("/actuator")
         ) {
             return chain.filter(exchange);
         }
@@ -42,8 +43,15 @@ public class JwtFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeader.substring(7);
-        return jwtDecoder.decode(token)
-                .flatMap(jwt -> chain.filter(exchange))
+        return authClient.validate(token)
+                .flatMap(validateResponseDto -> {
+                    if (Boolean.TRUE.equals(validateResponseDto.isValid())) {
+                        return chain.filter(exchange);
+                    }
+
+                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                    return exchange.getResponse().setComplete();
+                })
                 .onErrorResume(e -> {
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                     return exchange.getResponse().setComplete();
