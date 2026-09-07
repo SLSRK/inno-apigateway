@@ -35,9 +35,9 @@ spring:
               uri: http://paymentservice:8080
               order: 3
               predicates:
-                - Path=/paymentservice/v3/api-docs
+                - Path=/payment-service/v3/api-docs
               filters:
-                - RewritePath=/paymentservice/v3/api-docs, /v3/api-docs
+                - RewritePath=/payment-service/v3/api-docs, /v3/api-docs
 
             - id: userservice
               uri: http://userservice:8080
@@ -67,9 +67,9 @@ spring:
               uri: http://paymentservice:8080
               order: 13
               predicates:
-                - Path=/paymentservice/**
+                - Path=/payment-service/**
               filters:
-                - RewritePath=/paymentservice/(?<segment>.*), /${segment}
+                - RewritePath=/payment-service/(?<segment>.*), /${segment}
 
 springdoc:
   swagger-ui:
@@ -81,7 +81,7 @@ springdoc:
       - name: orderservice
         url: /orderservice/v3/api-docs
       - name: paymentservice
-        url: /paymentservice/v3/api-docs
+        url: /payment-service/v3/api-docs
 
 management:
   endpoints:
