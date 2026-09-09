@@ -21,6 +21,9 @@ public class SecurityConfig {
     @Value("${order.service.docs}")
     private String orderServiceDocs;
 
+    @Value("${payment.service.docs}")
+    private String paymentServiceDocs;
+
     private static final String API_DOCS = "/v3/api-docs/**";
     private static final String SWAGGER = "/swagger-ui/**";
     private static final String SWAGGER_HTML = "/swagger-ui.html";
@@ -36,6 +39,7 @@ public class SecurityConfig {
                                 authServiceDocs,
                                 userServiceDocs,
                                 orderServiceDocs,
+                                paymentServiceDocs,
                                 API_DOCS,
                                 SWAGGER,
                                 SWAGGER_HTML,
