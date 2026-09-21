@@ -11,25 +11,25 @@ spring:
               uri: http://userservice:8080
               order: 0
               predicates:
-                - Path=/userservice/v3/api-docs
+                - Path=/user-service/v3/api-docs
               filters:
-                - RewritePath=/userservice/v3/api-docs, /v3/api-docs
+                - RewritePath=/user-service/v3/api-docs, /v3/api-docs
 
             - id: authservice-docs
               uri: http://authservice:8080
               order: 1
               predicates:
-                - Path=/authservice/v3/api-docs
+                - Path=/auth-service/v3/api-docs
               filters:
-                - RewritePath=/authservice/v3/api-docs, /v3/api-docs
+                - RewritePath=/auth-service/v3/api-docs, /v3/api-docs
 
             - id: orderservice-docs
               uri: http://orderservice:8080
               order: 2
               predicates:
-                - Path=/orderservice/v3/api-docs
+                - Path=/order-service/v3/api-docs
               filters:
-                - RewritePath=/orderservice/v3/api-docs, /v3/api-docs
+                - RewritePath=/order-service/v3/api-docs, /v3/api-docs
 
             - id: paymentservice-docs
               uri: http://paymentservice:8080
@@ -43,25 +43,25 @@ spring:
               uri: http://userservice:8080
               order: 10
               predicates:
-                - Path=/userservice/**
+                - Path=/user-service/**
               filters:
-                - RewritePath=/userservice/(?<segment>.*), /${segment}
+                - RewritePath=/user-service/(?<segment>.*), /${segment}
 
             - id: authservice
               uri: http://authservice:8080
               order: 11
               predicates:
-                - Path=/authservice/**
+                - Path=/auth-service/**
               filters:
-                - RewritePath=/authservice/(?<segment>.*), /${segment}
+                - RewritePath=/auth-service/(?<segment>.*), /${segment}
 
             - id: orderservice
               uri: http://orderservice:8080
               order: 12
               predicates:
-                - Path=/orderservice/**
+                - Path=/order-service/**
               filters:
-                - RewritePath=/orderservice/(?<segment>.*), /${segment}
+                - RewritePath=/order-service/(?<segment>.*), /${segment}
 
             - id: paymentservice
               uri: http://paymentservice:8080
@@ -75,11 +75,11 @@ springdoc:
   swagger-ui:
     urls:
       - name: userservice
-        url: /userservice/v3/api-docs
+        url: /user-service/v3/api-docs
       - name: authservice
-        url: /authservice/v3/api-docs
+        url: /auth-service/v3/api-docs
       - name: orderservice
-        url: /orderservice/v3/api-docs
+        url: /order-service/v3/api-docs
       - name: paymentservice
         url: /payment-service/v3/api-docs
 
